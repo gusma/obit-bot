@@ -11,7 +11,8 @@ function sanitizeForURL(input) {
   const withoutDiacritics = input
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
-  return withoutDiacritics.replace(/[ .-]+/g, "").toLowerCase();
+  const withDashes = withoutDiacritics.replace(/[ ,()_]+/g, "-");
+  return withDashes.replace(/[.-]+/g, "-").toLowerCase();
 }
 
 module.exports = { escapeXML, sanitizeForURL };

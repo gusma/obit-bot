@@ -1,8 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const fs = require("fs");
-const escapeXML = require("./helpers/helpers");
-const sanitizeForURL = require("./helpers/helpers");
+const helperFunctions = require("./helpers/helpers");
 
 const baseURL = process.env.BASE_URL || "https://gusma.github.io/obit-bot/";
 
@@ -95,13 +94,18 @@ async function generateRSS(date) {
   // Generate RSS items
   let rssItems = "";
   items.forEach((item) => {
-    const sanitizedTitle = sanitizeForURL(escapeXML(item.name));
-    const itemGuidAndLinkSegment = `${sanitizedTitle}_${item.date}`;
+    const sanitizedTitle = helperFunctions.sanitizeForURL(
+      helperFunctions.escapeXML(item.name)
+    );
+    const itemGuidAndLinkSegment = `${sanitizedTitle}${item.date}`;
     const itemGuidAndLink = `${baseURL}/obit-bot/${itemGuidAndLinkSegment}`;
+    console.log(itemGuidAndLink);
     rssItems += `
       <item>
-        <title>${escapeXML(item.name)}</title>
-        <description>${escapeXML(item.description)}</description>
+        <title>${helperFunctions.escapeXML(item.name)}</title>
+        <description>${helperFunctions.escapeXML(
+          item.description
+        )}</description>
         <pubDate>${new Date(item.date).toUTCString()}</pubDate>
         <guid>${baseURL}${itemGuidAndLink}</guid>
         <link>${baseURL}${itemGuidAndLink}</link>
