@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '0 6 * * *'  # Runs every day at 6am
   push:
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
