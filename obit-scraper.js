@@ -3,7 +3,7 @@ const cheerio = require("cheerio");
 const fs = require("fs");
 const escapeXML = require("./helpers/helpers");
 
-const baseURL = process.env.BASE_URL || "https://gusma.github.io";
+const baseURL = process.env.BASE_URL || "https://gusma.github.io/obit-bot/";
 
 const baseUrl =
   "https://servicios.lanacion.com.ar/edicion-impresa/avisos-funebres/resultado/categorias=1041,1037,1036,1039,1035,1042,1040,7992-fecha=";
