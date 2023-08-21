@@ -34,7 +34,14 @@ async function scrapePage(pageNumber) {
         .replace(/,\s?q\.e\.p\.d\.|,\s?Z\.L\.|,\s?QEPD|,\s?RIP/gi, "")
         .trim();
 
-      const date = currentDate;
+      function formatDateToISO(yymmdd) {
+        return `${yymmdd.substring(0, 4)}-${yymmdd.substring(
+          4,
+          6
+        )}-${yymmdd.substring(6, 8)}`;
+      }
+
+      const date = formatDateToISO(currentDate);
 
       results.push({
         name: polishedName,
