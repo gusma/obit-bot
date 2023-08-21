@@ -31,29 +31,32 @@ async function scrapePage(pageNumber, dateToScrape) {
     const $ = cheerio.load(data);
 
     $("#contenido .funebres").each((i, element) => {
-      const itemText = $(element).text().trim();
-      let name, description;
+      const textContent = $(element).text().trim();
 
-      const [tempName, ...descriptionParts] = itemText.split(" - ");
-      name = tempName;
-      description = descriptionParts.join(" - ");
+      if (textContent.startsWith("Fallecidos de la semana")) {
+        // Extract the list of deceased names as the description
+        const description = textContent
+          .replace("Fallecidos de la semana en los Cem. comunitarios", "")
+          .trim();
 
-      const acumuladoUl = $(element).find("ul.acumulados");
-      if (acumuladoUl.length > 0) {
-        description += " " + acumuladoUl.text().trim();
+        results.push({
+          name: "Fallecidos de la semana en los Cem. comunitarios",
+          description: description,
+          date: formatDateToISO(dateToScrape),
+        });
+      } else {
+        // This is for the "regular" entries which have descriptions
+        const [tempName, ...descriptionParts] = textContent.split(". - ");
+        if (descriptionParts.length === 0) return;
+
+        results.push({
+          name: tempName
+            .replace(/,\s?q\.e\.p\.d\.|,\s?Z\.L\.|,\s?QEPD|,\s?RIP/gi, "")
+            .trim(),
+          description: descriptionParts.join(". - ").trim(),
+          date: formatDateToISO(dateToScrape),
+        });
       }
-
-      const polishedName = name
-        .replace(/,\s?q\.e\.p\.d\.|,\s?Z\.L\.|,\s?QEPD|,\s?RIP/gi, "")
-        .trim();
-
-      const date = formatDateToISO(dateToScrape);
-
-      results.push({
-        name: polishedName,
-        description: description.trim(),
-        date: date,
-      });
     });
 
     if ($(`a[href$="-pagina=${pageNumber + 1}-palabra="]`).length > 0) {
@@ -94,12 +97,13 @@ async function generateRSS(date) {
   // Generate RSS items
   let rssItems = "";
   items.forEach((item) => {
+    console.log("item name", item.name);
+    console.log("item description", item.description);
     const sanitizedTitle = helperFunctions.sanitizeForURL(
       helperFunctions.escapeXML(item.name)
     );
-    const itemGuidAndLinkSegment = `${sanitizedTitle}${item.date}`;
+    const itemGuidAndLinkSegment = `${sanitizedTitle}_${item.date}`;
     const itemGuidAndLink = `${baseURL}/obit-bot/${itemGuidAndLinkSegment}`;
-    console.log(itemGuidAndLink);
     rssItems += `
       <item>
         <title>${helperFunctions.escapeXML(item.name)}</title>
