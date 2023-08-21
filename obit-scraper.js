@@ -76,9 +76,10 @@ async function generateRSS() {
 
   // Properly format file
   const rssFeed = `
-    <rss version="2.0">
+    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
       <channel>
         <title>Funebres from La Nación</title>
+        <atom:link href="https://servicios.lanacion.com.ar/edicion-impresa/avisos-funebres/" rel="self" type="application/rss+xml" />
         <link>https://servicios.lanacion.com.ar/edicion-impresa/avisos-funebres/</link>
         <description>Funebres scraped from La Nación</description>
         ${rssItems}
