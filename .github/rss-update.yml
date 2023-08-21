@@ -3,7 +3,8 @@ name: Update RSS Feed
 on:
   schedule:
     - cron: '0 6 * * *'  # Runs every day at 6am
-
+  push:
+  
 jobs:
   build:
     runs-on: ubuntu-latest
