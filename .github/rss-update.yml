@@ -1,0 +1,32 @@
+name: Update RSS Feed
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Runs every day at 6am
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # or whatever version you need
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Generate RSS feed
+      run: node obit-scraper.js
+
+    - name: Commit and push if changed
+      run: |
+        git config user.name "${{ secrets.COMMITTER_NAME }}"
+        git config user.email "${{ secrets.COMMITTER_EMAIL }}"
+        git add -A
+        git diff --quiet && git diff --staged --quiet || git commit -m "Updated RSS Feed"
+        git push
