@@ -3,6 +3,8 @@ const cheerio = require("cheerio");
 const fs = require("fs");
 const escapeXML = require("./helpers/helpers");
 
+const baseURL = process.env.BASE_URL || "https://gusma.github.io";
+
 const baseUrl =
   "https://servicios.lanacion.com.ar/edicion-impresa/avisos-funebres/resultado/categorias=1041,1037,1036,1039,1035,1042,1040,7992-fecha=";
 
@@ -92,11 +94,14 @@ async function generateRSS(date) {
   // Generate RSS items
   let rssItems = "";
   items.forEach((item) => {
+    const itemGuidAndLink = `${escapeXML(item.name)}_${item.date}`;
     rssItems += `
       <item>
         <title>${escapeXML(item.name)}</title>
         <description>${escapeXML(item.description)}</description>
         <pubDate>${new Date(item.date).toUTCString()}</pubDate>
+        <guid>${baseURL}${itemGuidAndLink}</guid>
+        <link>${baseURL}${itemGuidAndLink}</link>
       </item>`;
   });
 
