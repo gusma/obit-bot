@@ -7,4 +7,8 @@ function escapeXML(str) {
     .replace(/'/g, "&apos;");
 }
 
-module.exports = escapeXML;
+function sanitizeForURL(input) {
+  return input.replace(/[ .-]+/g, "").toLowerCase();
+}
+
+module.exports = { escapeXML, sanitizeForURL };
