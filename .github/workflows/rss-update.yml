@@ -10,10 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" | sed 's/\\n/\n/g' > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0
+        repository: gusma/obit-bot
         ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Set up Node.js
@@ -26,13 +33,6 @@ jobs:
 
     - name: Generate RSS feed
       run: node obit-scraper.js
-
-    - name: Set up SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
 
     - name: Commit and push if changed
       run: |
