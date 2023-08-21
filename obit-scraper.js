@@ -76,7 +76,7 @@ async function generateRSS() {
       </channel>
     </rss>`;
 
-  fs.writeFileSync("output/rss.xml", rssFeed); // Write to rss.xml file
+  fs.writeFileSync("docs/rss.xml", rssFeed); // Write to rss.xml file
 }
 
 generateRSS();
