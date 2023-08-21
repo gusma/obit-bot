@@ -17,6 +17,10 @@ jobs:
 
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        repository: 'gusma/obit-bot'
+        token: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
