@@ -8,7 +8,10 @@ function escapeXML(str) {
 }
 
 function sanitizeForURL(input) {
-  return input.replace(/[ .-]+/g, "").toLowerCase();
+  const withoutDiacritics = input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return withoutDiacritics.replace(/[ .-]+/g, "").toLowerCase();
 }
 
 module.exports = { escapeXML, sanitizeForURL };
