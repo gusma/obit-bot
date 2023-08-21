@@ -22,7 +22,7 @@ It is a simple script generated in Node, which through Cheerio and Axios, will f
 
 Fork this repo and clone it on your system:
 
-`git clone https://github.com/<username>/github-bot`
+`git clone https://github.com/gusma/obit-bot`
 
 Navigate into the repo and install the dependencies:
 
