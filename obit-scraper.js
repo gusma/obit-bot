@@ -17,18 +17,16 @@ async function scrapePage(pageNumber) {
     // Browse page content subsection
     $("#contenido .funebres").each((i, element) => {
       const itemText = $(element).text().trim();
-      const acumuladoUl = $(element).find("ul.acumulados");
-
       let name, description;
 
-      // Check if there is an accumulate section (Usually belongs to jewish community cemeteries)
+      const [tempName, ...descriptionParts] = itemText.split(" - ");
+      name = tempName;
+      description = descriptionParts.join(" - ");
+
+      // If there's an ul.acumulados, then append its text to description.
+      const acumuladoUl = $(element).find("ul.acumulados");
       if (acumuladoUl.length > 0) {
-        description = acumuladoUl.text().trim();
-        name = itemText.replace(description, "").trim();
-      } else {
-        const [tempName, ...descriptionParts] = itemText.split(" - ");
-        name = tempName;
-        description = descriptionParts.join(" - ");
+        description += " " + acumuladoUl.text().trim();
       }
 
       // Remove unnecessary wishing messages eg QEPD, RIP, etc.
@@ -36,9 +34,12 @@ async function scrapePage(pageNumber) {
         .replace(/,\s?q\.e\.p\.d\.|,\s?Z\.L\.|,\s?QEPD|,\s?RIP/gi, "")
         .trim();
 
+      const date = currentDate;
+
       results.push({
         name: polishedName,
         description: description.trim(),
+        date: date,
       });
     });
 
@@ -62,6 +63,7 @@ async function generateRSS() {
         <item>
           <title>${item.name}</title>
           <description>${item.description}</description>
+          <pubDate>${new Date(item.date).toUTCString()}</pubDate>
         </item>`;
   });
 
