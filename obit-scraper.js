@@ -65,12 +65,16 @@ async function scrapePage(pageNumber) {
 async function generateRSS() {
   const items = await scrapePage(1);
   let rssItems = "";
+  let URL =
+    "https://servicios.lanacion.com.ar/edicion-impresa/avisos-funebres/";
   items.forEach((item) => {
     rssItems += `
         <item>
           <title>${item.name}</title>
           <description>${item.description}</description>
           <pubDate>${new Date(item.date).toUTCString()}</pubDate>
+          <link>${URL}</link>
+          <guid>${URL}</guid>
         </item>`;
   });
 
