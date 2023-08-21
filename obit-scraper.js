@@ -1,11 +1,16 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const fs = require("fs");
+const escapeXML = require("./helpers/helpers");
 
-const baseUrl = "https://servicios.lanacion.com.ar/edicion-impresa/avisos-funebres/resultado/categorias=1041,1037,1036,1039,1035,1042,1040,7992-fecha=";
+const baseUrl =
+  "https://servicios.lanacion.com.ar/edicion-impresa/avisos-funebres/resultado/categorias=1041,1037,1036,1039,1035,1042,1040,7992-fecha=";
 
 function formatDateToISO(yymmdd) {
-  return `${yymmdd.substring(0, 4)}-${yymmdd.substring(4, 6)}-${yymmdd.substring(6, 8)}`;
+  return `${yymmdd.substring(0, 4)}-${yymmdd.substring(
+    4,
+    6
+  )}-${yymmdd.substring(6, 8)}`;
 }
 
 function getYesterday() {
@@ -14,7 +19,7 @@ function getYesterday() {
   return date.toISOString().split("T")[0].replace(/-/g, "");
 }
 
-const currentDate = new Date().toISOString().split("T")[0].replace(/-/g, "")
+const currentDate = new Date().toISOString().split("T")[0].replace(/-/g, "");
 
 async function scrapePage(pageNumber, dateToScrape) {
   const results = [];
@@ -36,7 +41,9 @@ async function scrapePage(pageNumber, dateToScrape) {
         description += " " + acumuladoUl.text().trim();
       }
 
-      const polishedName = name.replace(/,\s?q\.e\.p\.d\.|,\s?Z\.L\.|,\s?QEPD|,\s?RIP/gi, "").trim();
+      const polishedName = name
+        .replace(/,\s?q\.e\.p\.d\.|,\s?Z\.L\.|,\s?QEPD|,\s?RIP/gi, "")
+        .trim();
 
       const date = formatDateToISO(dateToScrape);
 
@@ -59,13 +66,36 @@ async function scrapePage(pageNumber, dateToScrape) {
 }
 
 async function generateRSS(date) {
-  const items = await scrapePage(1, date);
+  let items = await scrapePage(1, date);
+
+  // Handle duplicate names
+  const nameCounts = new Map();
+  const nameIndices = new Map();
+
+  items.forEach((item) => {
+    nameCounts.set(item.name, (nameCounts.get(item.name) || 0) + 1);
+  });
+
+  items = items.map((item) => {
+    const count = nameCounts.get(item.name);
+    if (count > 1) {
+      const index = (nameIndices.get(item.name) || 0) + 1;
+      nameIndices.set(item.name, index);
+      return {
+        ...item,
+        name: `${item.name} (${index})`,
+      };
+    }
+    return item;
+  });
+
+  // Generate RSS items
   let rssItems = "";
   items.forEach((item) => {
     rssItems += `
       <item>
-        <title>${item.name}</title>
-        <description>${item.description}</description>
+        <title>${escapeXML(item.name)}</title>
+        <description>${escapeXML(item.description)}</description>
         <pubDate>${new Date(item.date).toUTCString()}</pubDate>
       </item>`;
   });
@@ -73,7 +103,7 @@ async function generateRSS(date) {
   return rssItems;
 }
 
-(async function() {
+(async function () {
   const todayItems = await generateRSS(currentDate);
   const yesterdayItems = await generateRSS(getYesterday());
 
@@ -94,6 +124,5 @@ async function generateRSS(date) {
       </channel>
     </rss>`;
 
-  fs.writeFileSync("docs/rss.xml", rssFeed); 
+  fs.writeFileSync("docs/rss.xml", rssFeed);
 })();
-
